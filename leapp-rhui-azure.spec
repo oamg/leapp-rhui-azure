@@ -1,6 +1,6 @@
 Name:           leapp-rhui-azure
 Version:        1.0.0
-Release:        16%{?dist}
+Release:        17%{?dist}
 Summary:        Support package for in-place upgrades using Leapp
 
 %global leappfilespath        %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/rhui
@@ -38,6 +38,10 @@ Requires:       python3
 
 %if 0%{?rhel} == 8
 Requires:       python39
+%endif
+
+%if 0%{?rhel} == 9
+Requires:       python312
 %endif
 
 %description sap
@@ -82,13 +86,23 @@ cp src/8to9/sap/leapp-azure-sap-apps.repo %{buildroot}%{leappfilespath}/azure-sa
 %endif
 
 %if 0%{?rhel} == 9
-mkdir -p %{buildroot}%{leappfilespath}/azure
 
+mkdir -p %{buildroot}%{leappfilespath}/azure
 cp src/9to10/base/leapp-azure.repo                         %{buildroot}/%{leappfilespath}/azure
 cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new  %{buildroot}/%{leappfilespath}/azure
 
+mkdir -p %{buildroot}%{leappfilespath}/azure-sap-ha
+cp src/9to10/sap/leapp-azure-sap-ha.repo            %{buildroot}/%{leappfilespath}/azure-sap-ha
+
+mkdir -p %{buildroot}%{leappfilespath}/azure-sap-apps
+cp src/9to10/sap/leapp-azure-sap-apps.repo          %{buildroot}/%{leappfilespath}/azure-sap-apps
+
+# Same GPG key is used for all RHUI clients, take the one in /base
+cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new  %{buildroot}/%{leappfilespath}/azure-sap-ha
+cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new  %{buildroot}/%{leappfilespath}/azure-sap-apps
 mkdir -p %{buildroot}/%{upgrade_gpg_keys_dir}
 cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new  %{buildroot}/%{upgrade_gpg_keys_dir}
+
 %endif
 
 exit 0
@@ -162,9 +176,31 @@ exit 0
 /%{leappfilespath}/azure/leapp-azure.repo
 /%{leappfilespath}/azure/RPM-GPG-KEY-microsoft-azure-release-new
 /%{upgrade_gpg_keys_dir}/RPM-GPG-KEY-microsoft-azure-release-new
+
+%files sap
+%dir %{_datadir}/leapp-repository
+%dir %{_datadir}/leapp-repository/repositories
+%dir %{_datadir}/leapp-repository/repositories/system_upgrade
+%dir %{_datadir}/leapp-repository/repositories/system_upgrade/common
+%dir %{_datadir}/leapp-repository/repositories/system_upgrade/common/files
+%dir %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/rhui
+%dir %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/rhui/azure-sap-ha
+%dir %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/rhui/azure-sap-apps
+
+/%{leappfilespath}/azure-sap-ha/leapp-azure-sap-ha.repo
+/%{leappfilespath}/azure-sap-ha/RPM-GPG-KEY-microsoft-azure-release-new
+
+/%{leappfilespath}/azure-sap-apps/leapp-azure-sap-apps.repo
+/%{leappfilespath}/azure-sap-apps/RPM-GPG-KEY-microsoft-azure-release-new
+
+/%{upgrade_gpg_keys_dir}/RPM-GPG-KEY-microsoft-azure-release-new
+
 %endif
 
 %changelog
+* Tue Aug 26 2025 Michal Hecko <mhecko@redhat.com> 1.0.0-17
+- add RHEL 9 packages for SAP Apps and SAP HA
+
 * Sun Jun 15 2025 Michal Hecko <mhecko@redhat.com> 1.0.0-16
 - add rhel9 package
 
