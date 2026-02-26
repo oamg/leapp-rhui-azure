@@ -1,10 +1,11 @@
 Name:           leapp-rhui-azure
 Version:        1.0.0
-Release:        17%{?dist}
+Release:        18%{?dist}
 Summary:        Support package for in-place upgrades using Leapp
 
 %global leappfilespath        %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/rhui
 %global upgrade_gpg_keys_dir  %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/distro/rhel/rpm-gpg/10
+%global old_upgrade_gpg_keys_dir  %{_datadir}/leapp-repository/repositories/system_upgrade/common/files/rpm-gpg/10
 
 License:        LGPLv2+
 URL:            http://redhat.com
@@ -103,6 +104,9 @@ cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new  %{buildroot}/%{leappf
 mkdir -p %{buildroot}/%{upgrade_gpg_keys_dir}
 cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new  %{buildroot}/%{upgrade_gpg_keys_dir}
 
+mkdir -p %{buildroot}/%{old_upgrade_gpg_keys_dir}  # For upgrades 9.6 > 10.0 that use old leapp-repository
+cp src/9to10/base/RPM-GPG-KEY-microsoft-azure-release-new %{buildroot}/%{old_upgrade_gpg_keys_dir}
+
 %endif
 
 exit 0
@@ -194,10 +198,14 @@ exit 0
 /%{leappfilespath}/azure-sap-apps/RPM-GPG-KEY-microsoft-azure-release-new
 
 /%{upgrade_gpg_keys_dir}/RPM-GPG-KEY-microsoft-azure-release-new
+/%{old_upgrade_gpg_keys_dir}/RPM-GPG-KEY-microsoft-azure-release-new
 
 %endif
 
 %changelog
+* Thu Feb 26 2026 Michal Hecko <mhecko@redhat.com> 1.0.0-18
+- add backwards compatibility for 9.6 to 10.0 SAP upgrades
+
 * Tue Aug 26 2025 Michal Hecko <mhecko@redhat.com> 1.0.0-17
 - add RHEL 9 packages for SAP Apps and SAP HA
 
